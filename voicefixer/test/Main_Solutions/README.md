@@ -12,40 +12,59 @@ Production-ready audio enhancement with intelligent pre-screening and quality va
 - ✅ **Acoustic Fallback** - Prevents rejection of valid but hard-to-transcribe speech
 - ✅ **Context-Aware Thresholds** - Relaxed validation for short clips (<3s)
 
-## 📋 Prerequisites
+
+## 📋 Prerequisites & Dependencies
 
 - Python 3.8+
 - **NumPy < 2.0** (CRITICAL: NumPy 2.x breaks PyTorch/Whisper compatibility)
 - CUDA-capable GPU (optional, recommended for faster processing)
+- **PyTorch** (for model inference)
+- **Streamlit** (for UI)
+- **OpenAI Whisper** (for transcription)
+- **ScoreQ** (for speech quality assessment)
+- **NISQA** (for perceptual quality assessment)
+- **Silero VAD** (for robust voice activity detection)
+- **PyEnchant** (for dictionary-based lexical validation)
+- **scipy** (signal processing)
+- **librosa** (audio loading)
+- **pathlib** (filesystem operations)
+- **logging** (Python standard library)
+- **torchvision** (if using certain models)
+- **onnxruntime** (for ONNX model inference)
+- **pandas** (for batch/CSV export)
 
-## 🚀 Installation
+### System Dependencies
+- For dictionary validation: `enchant` library (see below for OS-specific install)
 
-### 1. Install Dependencies
+### Python Package Installation
 
 ```bash
-pip install -r requirements.txt
+pip install torch streamlit openai-whisper scoreq scipy numpy<2.0 librosa pyenchant onnxruntime pandas
 ```
 
-### 2. Download NISQA Weights
+### System Package Installation (for PyEnchant)
 
-Download `nisqa.tar` from the [NISQA repository](https://github.com/gabrielmittag/NISQA) and place it in one of these locations:
-- Same directory as the script
-- Parent directory (`../nisqa.tar`)
-
-### 3. Install Dictionary (if not already installed)
-
-```bash
 # macOS
 brew install enchant
 
 # Ubuntu/Debian
-sudo apt-get install python3-enchant
+sudo apt-get install enchant
 
 # Windows
 # PyEnchant is automatically installed via pip
-```
+
+### Model Files Required
+- **NISQA**: Download `nisqa.tar` from the [NISQA repository](https://github.com/gabrielmittag/NISQA) and place it in the script or parent directory.
+- **Silero VAD**: Model is downloaded automatically by the code if not present.
+- **Whisper**: Model is downloaded automatically by the code if not present.
+- **VoiceFixer**: Model files must be present in the expected locations (see repo structure).
+- **ScoreQ**: Model files must be present in the expected locations.
+
+
+
 
 ## 💻 Usage
+
 
 ### Single File Processing
 
@@ -72,6 +91,7 @@ Then:
 4. View batch summary table with all metrics
 5. Download CSV export for analysis
 
+
 ### Command-Line Usage (Modularized Version)
 
 ```python
@@ -91,6 +111,7 @@ if is_valid:
 else:
     print(f"❌ Rejected: {reason}")
 ```
+
 
 ## ⚙️ Configuration
 
@@ -136,6 +157,7 @@ DOMAIN_ALLOWLIST = {
 }
 ```
 
+
 ## 📊 Output Metrics
 
 ### Input Validation Stage
@@ -163,6 +185,7 @@ All metrics above plus:
 - Rejection Reasons
 - MOS Δ, ScoreQ Δ (improvement deltas)
 - Human-readable interpretations for all metrics
+
 
 ## 🔧 Troubleshooting
 
@@ -223,6 +246,7 @@ You may see: `scoreq 1.0.1 requires numpy>=2.0.0`
 
 **This is safe to ignore.** ScoreQ works correctly with NumPy 1.26.4 despite the warning.
 
+
 ## 🧠 Design Philosophy
 
 **Precision over Recall:**
@@ -244,6 +268,7 @@ This is **acceptable and by design** for quality-first applications where:
 - **High-recall use case**: Lower MIN_WORD_DENSITY, MIN_DICTIONARY_COVERAGE
 - **Domain-specific**: Add terms to DOMAIN_ALLOWLIST
 - **Multi-language**: Set `ENABLE_LANGUAGE_DETECTION = False`
+
 
 ## 📚 Known Limitations
 
@@ -273,7 +298,35 @@ This is **acceptable and by design** for quality-first applications where:
    - GPU acceleration helps but still serial processing
    - Future: Implement batch transcription for folders
 
-## 🏗️ Architecture
+
+## 🏗️ Architecture & Implementation Summary
+
+### Main Features (as implemented in `voicefixer_input_validation_gate_refined.py`)
+
+- **Pre-screening Input Validation:** Validates input audio before enhancement to avoid processing poor-quality or non-speech audio.
+- **Silero VAD Integration:** Robust voice activity detection, minimum voiced duration enforcement, VAD-aware SNR calculation.
+- **Whisper Confidence Analysis:** Uses avg_logprob and no_speech_prob to detect hallucinations and de-hallucination.
+- **Dictionary-Based Gibberish Detection:** Validates lexical content using PyEnchant and a domain-aware allowlist.
+- **Non-Lexical Speech Support:** Recognizes valid vocalizations (e.g., "uhm", "mmh", "ah").
+- **Multi-Signal Rejection:** Requires ≥2 independent metrics to degrade before rejecting input.
+- **Risk/Benefit Scoring:** Quantified decision framework for transparent, data-driven logic.
+- **Language Detection:** English-only mode by default, configurable for multi-language.
+- **Acoustic Fallback:** For zero-word cases, uses RMS energy and voiced frame ratio.
+- **Comprehensive Quality Metrics:** NISQA (MOS, distortion, coloration), ScoreQ-NR, SNR, bandwidth, temporal roughness.
+- **Batch and Single File Processing:** Streamlit UI supports both modes, with CSV export.
+- **Highly Configurable:** All thresholds and allowlists are easily adjustable in the configuration section.
+
+### Model Initialization
+- Loads NISQA, Whisper, VoiceFixer, ScoreQ, and Silero VAD models at startup (with caching for efficiency).
+
+### Decision Logic
+- Multi-stage validation pipeline: transcription, word density, dictionary coverage, acoustic fallback, multi-metric agreement.
+- Post-enhancement quality assessment: NISQA, ScoreQ, dictionary re-check, risk/benefit scoring.
+
+### Modular Design
+- Core logic is modularized for production integration: input validation, quality assessment, and UI are separated.
+
+### For more details, see the code comments and configuration section in `voicefixer_input_validation_gate_refined.py`.
 
 ### Validation Pipeline
 
