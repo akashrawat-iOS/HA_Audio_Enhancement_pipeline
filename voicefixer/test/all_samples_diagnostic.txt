@@ -1,0 +1,192 @@
+/Users/akashrawat/Work/Learning/Python/VoiceFixer/voicefixer/test/diagnose_all_samples.py:58: UserWarning: PySoundFile failed. Trying audioread instead.
+  audio_input, sr = librosa.load(sample_file, sr=None, mono=True)
+/Users/akashrawat/Work/Learning/Python/VoiceFixer/.venv/lib/python3.13/site-packages/librosa/core/audio.py:184: FutureWarning: librosa.core.audio.__audioread_load
+	Deprecated as of librosa version 0.10.0.
+	It will be removed in librosa version 1.0.
+  y, sr_native = __audioread_load(path, offset, duration, dtype)
+/Users/akashrawat/Work/Learning/Python/VoiceFixer/voicefixer/voicefixer/base.py:48: UserWarning: PySoundFile failed. Trying audioread instead.
+  wav_10k, _ = librosa.load(path, sr=sample_rate)
+SCOREQ (ONNX) initialized on provider: CPUExecutionProvider
+================================================================================
+ScoreQ-NR Diagnostic Analysis - ALL SAMPLES
+================================================================================
+
+Loading models...
+SCOREQ (ONNX) initialized on provider: CPUExecutionProvider
+SCOREQ (ONNX) initialized on provider: CPUExecutionProvider
+✓ Models loaded
+
+================================================================================
+ANALYZING: sp29_train_sn10.wav
+================================================================================
+  Sample rate: 8000 Hz
+  Duration: 2.55s
+  Samples: 20409
+
+Processing with VoiceFixer...
+✓ VoiceFixer processing complete
+
+ScoreQ-NR Analysis (DUAL DOMAIN):
+--------------------------------------------------------------------------------
+
+INPUT (Original):
+  Natural domain:   2.374
+  Synthetic domain: 0.541
+  Average:          1.457
+
+OUTPUT (VoiceFixer processed):
+  Natural domain:   2.805
+  Synthetic domain: 1.307
+  Average:          2.056
+
+CHANGE (Output - Input):
+  Natural domain:   +0.432
+  Synthetic domain: +0.766
+  Average:          +0.599
+
+VERDICT:
+  ✅ SIGNIFICANT IMPROVEMENT (+0.599)
+
+QUALITY GATE IMPACT:
+  ✅ Should ACCEPT VoiceFixer output
+================================================================================
+ANALYZING: Demo_PTT_msg.m4a
+================================================================================
+  Sample rate: 16000 Hz
+  Duration: 3.99s
+  Samples: 63840
+
+Processing with VoiceFixer...
+✓ VoiceFixer processing complete
+
+ScoreQ-NR Analysis (DUAL DOMAIN):
+--------------------------------------------------------------------------------
+
+INPUT (Original):
+  Natural domain:   1.332
+  Synthetic domain: 1.331
+  Average:          1.332
+
+OUTPUT (VoiceFixer processed):
+  Natural domain:   2.975
+  Synthetic domain: 1.632
+  Average:          2.304
+
+CHANGE (Output - Input):
+  Natural domain:   +1.643
+  Synthetic domain: +0.301
+  Average:          +0.972
+
+VERDICT:
+  ✅ SIGNIFICANT IMPROVEMENT (+0.972)
+
+QUALITY GATE IMPACT:
+  ✅ Should ACCEPT VoiceFixer output
+================================================================================
+ANALYZING: sample_1.wav
+================================================================================
+  Sample rate: 16000 Hz
+  Duration: 7.79s
+  Samples: 124640
+
+Processing with VoiceFixer...
+✓ VoiceFixer processing complete
+
+ScoreQ-NR Analysis (DUAL DOMAIN):
+--------------------------------------------------------------------------------
+
+INPUT (Original):
+  Natural domain:   1.124
+  Synthetic domain: 0.614
+  Average:          0.869
+
+OUTPUT (VoiceFixer processed):
+  Natural domain:   1.768
+  Synthetic domain: 0.792
+  Average:          1.280
+
+CHANGE (Output - Input):
+  Natural domain:   +0.644
+  Synthetic domain: +0.178
+  Average:          +0.411
+
+VERDICT:
+  ✅ SIGNIFICANT IMPROVEMENT (+0.411)
+
+QUALITY GATE IMPACT:
+  ✅ Should ACCEPT VoiceFixer output
+================================================================================
+ANALYZING: sample_3.wav
+================================================================================
+  Sample rate: 16000 Hz
+  Duration: 5.06s
+  Samples: 80896
+
+Processing with VoiceFixer...
+✓ VoiceFixer processing complete
+
+ScoreQ-NR Analysis (DUAL DOMAIN):
+--------------------------------------------------------------------------------
+
+INPUT (Original):
+  Natural domain:   1.399
+  Synthetic domain: 0.984
+  Average:          1.192
+
+OUTPUT (VoiceFixer processed):
+  Natural domain:   2.620
+  Synthetic domain: 1.515
+  Average:          2.067
+
+CHANGE (Output - Input):
+  Natural domain:   +1.221
+  Synthetic domain: +0.530
+  Average:          +0.875
+
+VERDICT:
+  ✅ SIGNIFICANT IMPROVEMENT (+0.875)
+
+QUALITY GATE IMPACT:
+  ✅ Should ACCEPT VoiceFixer output
+
+================================================================================
+SUMMARY - ScoreQ-NR Results (Dual-Domain Averaging)
+================================================================================
+
+File                      Input Avg    Output Avg   Delta      Verdict
+--------------------------------------------------------------------------------
+sp29_train_sn10.wav       1.457        2.056        +0.599     ✅ IMPROVED
+Demo_PTT_msg.m4a          1.332        2.304        +0.972     ✅ IMPROVED
+sample_1.wav              0.869        1.280        +0.411     ✅ IMPROVED
+sample_3.wav              1.192        2.067        +0.875     ✅ IMPROVED
+
+================================================================================
+KEY FINDINGS
+================================================================================
+
+✅ Files IMPROVED by VoiceFixer: 4/4
+   • sp29_train_sn10.wav: +0.599
+   • Demo_PTT_msg.m4a: +0.972
+   • sample_1.wav: +0.411
+   • sample_3.wav: +0.875
+
+✅ NO files were degraded!
+
+================================================================================
+CONCLUSION
+================================================================================
+
+Your current code has a BUG:
+  ❌ Compares Natural domain (input) vs Synthetic domain (output)
+  ❌ This gives WRONG delta calculations
+
+The CORRECT approach (shown above):
+  ✅ Evaluate BOTH input and output with BOTH domains
+  ✅ Average the two domains for each
+  ✅ Compare averages
+
+RECOMMENDATION:
+  Fix voicefixer_input_validation_gate.py to use dual-domain averaging
+  (See lines 556-559 where ScoreQ assessment happens)
+
+================================================================================

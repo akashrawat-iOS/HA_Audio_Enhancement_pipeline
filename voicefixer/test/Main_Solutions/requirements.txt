@@ -1,0 +1,62 @@
+# VoiceFixer Input Validation Requirements
+# Production-ready audio enhancement with intelligent pre-screening
+
+# Core Dependencies
+numpy<2.0                 # CRITICAL: NumPy 2.x breaks PyTorch/Whisper compatibility
+streamlit>=1.28.0         # Web UI framework
+torch>=2.0.0              # PyTorch for model inference
+librosa>=0.10.0           # Audio processing and analysis
+soundfile>=0.12.0         # Audio file I/O
+scipy>=1.10.0             # Scientific computing utilities
+
+# ML Models
+openai-whisper>=20230314  # Speech recognition and language detection
+voicefixer>=0.1.2         # Audio restoration framework
+
+# Quality Assessment Models
+# NISQA: Install separately from https://github.com/gabrielmittag/NISQA
+# Download nisqa.tar weights and place in script directory
+# nisqa>=0.1.0  # Uncomment if installed via pip
+
+# ScoreQ-NR: Speech quality assessment
+# Note: scoreq 1.0.1 requires numpy>=2.0, but works fine with numpy 1.26.4
+# The dependency warning can be safely ignored
+scoreq>=1.0.0
+
+# Dictionary for Lexical Validation
+pyenchant>=3.2.2          # English dictionary for word validation
+
+# Optional: Faster Processing
+# accelerate>=0.20.0      # Hugging Face accelerate for faster inference
+# transformers>=4.30.0    # If using transformer-based models
+
+# Development Dependencies (optional)
+# pytest>=7.4.0           # Unit testing
+# black>=23.0.0           # Code formatting
+# ruff>=0.0.280           # Linting
+# mypy>=1.4.0            # Type checking
+
+# System Requirements:
+# - Python 3.8+
+# - CUDA 11.8+ (optional, for GPU acceleration)
+# - 8GB+ RAM (16GB recommended for batch processing)
+# - 2GB+ disk space (for models)
+
+# Installation Instructions:
+# 1. pip install -r requirements.txt
+# 2. Download NISQA weights: nisqa.tar
+# 3. Install system dictionary:
+#    - macOS: brew install enchant
+#    - Ubuntu: sudo apt-get install python3-enchant
+#    - Windows: Automatic via pip
+
+# Known Compatibility Issues:
+# - NumPy 2.x breaks PyTorch/Whisper (use <2.0)
+# - ScoreQ warns about NumPy >=2.0 but works with 1.26.4
+# - PyEnchant may need system-level enchant library
+
+# Version Pinning Rationale:
+# - numpy<2.0: PyTorch/Whisper incompatibility with 2.x
+# - torch>=2.0.0: Required for latest Whisper features
+# - librosa>=0.10.0: Bug fixes in spectral analysis
+# - streamlit>=1.28.0: st.cache_resource decorator support
