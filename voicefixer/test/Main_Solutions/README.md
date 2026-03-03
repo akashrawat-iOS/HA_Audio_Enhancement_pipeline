@@ -29,8 +29,6 @@ Production-ready audio enhancement with intelligent pre-screening and quality va
 - **librosa** (audio loading)
 - **pathlib** (filesystem operations)
 - **logging** (Python standard library)
-- **torchvision** (if using certain models)
-- **onnxruntime** (for ONNX model inference)
 - **pandas** (for batch/CSV export)
 
 ### System Dependencies
@@ -39,7 +37,7 @@ Production-ready audio enhancement with intelligent pre-screening and quality va
 ### Python Package Installation
 
 ```bash
-pip install torch streamlit openai-whisper scoreq scipy numpy<2.0 librosa pyenchant onnxruntime pandas
+pip install torch streamlit openai-whisper scoreq scipy "numpy<2.0" librosa pyenchant pandas
 ```
 
 ### System Package Installation (for PyEnchant)
